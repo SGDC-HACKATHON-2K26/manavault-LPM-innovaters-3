@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ManaVault — Your Personal Digital Space</title>
+<style>
+:root{--bg:#f5f7ff;--panel:#fff;--ink:#1c2440;--muted:#69728b;--line:#e4e8f5;--brand:#5b5ce2;--brand2:#8585ff;--soft:#eeeeff;--danger:#c83c54;--good:#16866b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,#4546bf,#7777f5);color:white;padding:22px max(18px,calc((100% - 1180px)/2));display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:48px;height:48px;border-radius:16px;background:#ffffff24;display:grid;place-items:center;font-size:26px}.brand h1{margin:0;font-size:1.45rem}.brand p{margin:3px 0 0;opacity:.85;font-size:.9rem}
+.header-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.header-actions button{background:#fff;color:#4445b9}
+main{max-width:1180px;margin:24px auto;padding:0 16px 40px}.notice{background:#fff9e8;border:1px solid #ffe2a4;border-radius:14px;padding:12px 15px;color:#76551b;margin-bottom:18px;font-size:.9rem}
+.layout{display:grid;grid-template-columns:230px 1fr;gap:18px}.sidebar,.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 5px 18px #343a6810}.sidebar{padding:12px;height:max-content}.nav{width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:12px;border-radius:11px;cursor:pointer;font-size:.96rem;margin:2px 0}.nav.active,.nav:hover{background:var(--soft);color:var(--brand);font-weight:650}.side-note{font-size:.8rem;color:var(--muted);padding:12px;line-height:1.5}.content{min-width:0}.toprow{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:16px}.toprow h2{margin:0;font-size:1.35rem}.search{flex:1;max-width:380px;min-width:180px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;background:white}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.card{padding:18px}.card h3{margin:0 0 7px;font-size:1.05rem}.card p{margin:0 0 14px;color:var(--muted);font-size:.9rem;line-height:1.5}
+button,.button{border:0;border-radius:11px;padding:10px 14px;font:inherit;font-weight:650;cursor:pointer;background:var(--brand);color:white;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+button.secondary,.button.secondary{background:var(--soft);color:var(--brand)}button.danger{background:#fff0f2;color:var(--danger)}button:disabled{opacity:.5;cursor:not-allowed}
+textarea,input[type=text],input[type=email],select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;font:inherit;background:white;color:var(--ink);margin:5px 0 12px}
+textarea{min-height:120px;resize:vertical}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1}.hint{font-size:.82rem;color:var(--muted);line-height:1.5}.items{display:grid;gap:10px;margin-top:14px}.item{border:1px solid var(--line);border-radius:13px;padding:13px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;background:#fff}.item strong{display:block;overflow-wrap:anywhere}.item small{display:block;color:var(--muted);margin-top:4px}.item-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.item-actions button{font-size:.8rem;padding:7px 9px}.empty{border:1px dashed #c9cee6;border-radius:14px;padding:28px;text-align:center;color:var(--muted);margin-top:14px}
+.panel{display:none}.panel.active{display:block}.hidden{display:none!important}.pill{font-size:.75rem;border-radius:30px;background:#eef8f4;color:var(--good);padding:4px 8px;white-space:nowrap}
+canvas{display:block;width:100%;height:300px;border:1px solid var(--line);border-radius:13px;background:white;touch-action:none}.footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:24px}
+#fileInput{display:none}.storagebar{height:8px;background:#eceefa;border-radius:9px;overflow:hidden;margin:9px 0}.storagebar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2))}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.side-note{grid-column:1/-1}.grid{grid-template-columns:1fr}.item{flex-direction:column}.item-actions{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">☁️</div><div><h1>ManaVault</h1><p>One home for your notes, files, memories & ideas</p></div></div>
+ <div class="header-actions"><button id="backupBtn">⬇ Export Backup</button><button id="restoreBtn">⬆ Restore Backup</button><input id="restoreFile" type="file" accept=".json,application/json" hidden></div>
+</header>
+<main>
+ <div class="notice"><strong>Prototype note:</strong> This first version saves text and small records in this browser on this device. Files are kept in this browser only when supported. It is not yet connected to Gmail/cloud storage, so use <b>Export Backup</b> regularly. Cloud sync and secure account login need a real backend.</div>
+ <div class="layout">
+  <aside class="sidebar">
+   <button class="nav active" data-panel="home">🏠 Home</button>
+   <button class="nav" data-panel="notes">✍️ Text & Notes</button>
+   <button class="nav" data-panel="files">📁 Photos, PDFs & Videos</button>
+   <button class="nav" data-panel="capture">📷 Capture / Add</button>
+   <button class="nav" data-panel="draw">🎨 Drawing Board</button>
+   <button class="nav" data-panel="trash">🗑️ Recycle Bin</button>
+   <button class="nav" data-panel="settings">⚙️ Backup & Settings</button>
+   <div class="side-note">💡 Tip: Give each saved item a clear title, so you can find it later using Search.</div>
+  </aside>
+  <section class="content">
+   <div class="toprow"><h2 id="pageTitle">Your digital space</h2><input class="search" id="search" type="text" placeholder="Search notes, files, topics…"></div>
+   <section id="home" class="panel active">
+    <div class="grid">
+     <div class="card"><h3>✍️ Save anything you type</h3><p>Study notes, messages, ideas, records, lists or any topic.</p><button data-goto="notes">Create a note</button></div>
+     <div class="card"><h3>📎 Keep your files together</h3><p>Add photos, videos, PDFs and other documents from your device.</p><button data-goto="files">Add files</button></div>
+     <div class="card"><h3>🎨 Make your own drawing</h3><p>Draw with your finger on mobile or mouse on a computer.</p><button data-goto="draw">Open drawing board</button></div>
+     <div class="card"><h3>♻️ Recover deleted items</h3><p>Deleted items move to the Recycle Bin first. Restore them before permanently deleting.</p><button data-goto="trash">Open Recycle Bin</button></div>
+    </div>
+    <div class="card" style="margin-top:15px"><h3>Storage overview</h3><div class="row"><div><div class="hint">Saved notes</div><strong id="noteCount">0</strong></div><div><div class="hint">Saved files</div><strong id="fileCount">0</strong></div><div><div class="hint">Recycle Bin</div><strong id="trashCount">0</strong></div></div><div class="storagebar"><span id="usageBar"></span></div><div id="usageText" class="hint">Local browser storage usage estimate</div></div>
+   </section>
+   <section id="notes" class="panel">
+    <div class="card"><h3 id="noteFormTitle">Create a new note</h3><label for="noteTitle" class="hint">Title / topic</label><input id="noteTitle" type="text" placeholder="e.g. BCA Computer Notes"><label for="noteBody" class="hint">Type anything you want to save</label><textarea id="noteBody" placeholder="Write your notes, ideas, records, messages…"></textarea><div class="row"><button id="saveNote">💾 Save note</button><button class="secondary" id="clearNote">Clear</button></div><p class="hint">Saved notes stay in this browser until site data is cleared. Export a backup to keep a separate copy.</p></div>
+    <div id="notesList" class="items"></div>
+   </section>
+   <section id="files" class="panel">
+    <div class="card"><h3>Add photos, videos, PDFs or other files</h3><p>Choose one or more files from your device. File size and storage limits depend on your browser/device.</p><input id="filePicker" type="file" multiple accept="image/*,video/*,application/pdf,.doc,.docx,.txt,.xlsx,.pptx"><button id="chooseFiles">＋ Choose files</button><div id="fileStatus" class="hint" style="margin-top:10px"></div><div class="hint" style="margin-top:10px">This prototype uses browser storage, which is not a reliable long-term cloud drive. Large videos may not save. A production version needs cloud file storage.</div></div>
+    <div id="filesList" class="items"></div>
+   </section>
+   <section id="capture" class="panel">
+    <div class="grid">
+     <div class="card"><h3>📷 Add a photo / screenshot</h3><p>Choose a picture or screenshot already on your device.</p><input id="photoPicker" type="file" accept="image/*" capture="environment"><button id="choosePhoto">Choose / capture photo</button><p class="hint">Some phones open the camera; others open the gallery. Camera behavior depends on your browser.</p></div>
+     <div class="card"><h3>🧾 Quick record</h3><p>Save a quick title and description, like a reminder, event or important record.</p><input id="recordTitle" type="text" placeholder="Record title"><textarea id="recordBody" placeholder="Details…"></textarea><button id="saveRecord">Save record as note</button></div>
+    </div>
+   </section>
+   <section id="draw" class="panel">
+    <div class="card"><h3>🎨 Your drawing board</h3><p>Draw, sketch or write with your finger or mouse, then save it as a picture.</p><div class="row"><label class="hint">Pen color<input id="penColor" type="color" value="#333399" style="display:block;height:42px;width:100%;border:0;background:transparent"></label><label class="hint">Pen size<select id="penSize"><option value="2">Thin</option><option value="4" selected>Medium</option><option value="8">Thick</option><option value="14">Extra thick</option></select></label></div><canvas id="board" width="1000" height="500"></canvas><div class="row" style="margin-top:12px"><button id="saveDrawing">💾 Save drawing</button><button class="secondary" id="clearDrawing">Clear board</button></div></div>
+   </section>
+   <section id="trash" class="panel">
+    <div class="card"><h3>Recycle Bin</h3><p>Restore an item if you deleted it by mistake. Items remain here until you permanently delete them or clear this browser's data.</p><button class="danger" id="emptyTrash">Empty Recycle Bin</button></div><div id="trashList" class="items"></div>
+   </section>
+   <section id="settings" class="panel">
+    <div class="card"><h3>Backup & account plans</h3><p><b>Right now:</b> data is stored locally in this browser. Use export to download a JSON backup of notes and supported file data.</p><button id="backupBtn2">⬇ Export Backup</button><hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3>Automatic Gmail / cloud backup</h3><p>To automatically sync to a Gmail account, the next version needs Google Sign-In (OAuth), a secure server/cloud database, cloud file storage and recovery rules. Never ask users to type their Gmail password into this app.</p><label class="hint" for="emailIdea">Gmail address for the future cloud-sync setup (planning only)</label><input id="emailIdea" type="email" placeholder="you@gmail.com"><p class="hint">This field does not connect or upload anything. Do not enter a password.</p><button class="secondary" id="saveEmailIdea">Save preference on this device</button><div id="emailStatus" class="hint" style="margin-top:8px"></div><hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3>Future features</h3><p>✓ Google sign-in · ✓ automatic cloud sync · ✓ encrypted storage · ✓ larger video storage · ✓ version history · ✓ deleted-item recovery · ✓ installable phone app.</p></div>
+   </section>
+  </section>
+ </div>
+ <div class="footer">ManaVault prototype · Your ideas deserve a safe place ✨</div>
+</main>
+<input id="fileInput" type="file" accept="image/*" hidden>
+<script>
+const DBKEY='manavault_v1';
+let db={notes:[],files:[],trash:[]}, editingId=null;
+const $=id=>document.getElementById(id);
+function load(){try{const raw=localStorage.getItem(DBKEY);if(raw)db={...db,...JSON.parse(raw)}}catch(e){console.warn(e)}renderAll()}
+function save(){try{localStorage.setItem(DBKEY,JSON.stringify(db));renderStats();return true}catch(e){alert('Browser storage is full or unavailable. Export a backup, remove large files, or use the future cloud version.');return false}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function go(panel){document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===panel));document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.panel===panel));$('pageTitle').textContent=({home:'Your digital space',notes:'Text & Notes',files:'Photos, PDFs & Videos',capture:'Capture / Add',draw:'Drawing Board',trash:'Recycle Bin',settings:'Backup & Settings'})[panel]||'ManaVault';$('search').value='';renderAll()}
+document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>go(b.dataset.panel)));
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.goto)));
+function clearNote(){editingId=null;$('noteTitle').value='';$('noteBody').value='';$('noteFormTitle').textContent='Create a new note';$('saveNote').textContent='💾 Save note'}
+$('clearNote').onclick=clearNote;
+$('saveNote').onclick=()=>{const title=$('noteTitle').value.trim(),body=$('noteBody').value.trim();if(!title&&!body){alert('Please type a title or note first.');return}if(editingId){const n=db.notes.find(x=>x.id===editingId);if(n){n.title=title||'Untitled';n.body=body;n.updated=Date.now()}}else db.notes.unshift({id:uid(),kind:'note',title:title||'Untitled',body,created:Date.now(),updated:Date.now()});if(save()){clearNote();renderAll()}};
+function itemHtml(item,type){const isFile=type==='files';const detail=isFile?`${item.type||'File'} · ${formatBytes(item.size||0)}`:(item.body||'').slice(0,140);return `<div class="item"><div style="min-width:0"><strong>${esc(item.title||item.name||'Untitled')}</strong><small>${esc(detail)} · ${new Date(item.updated||item.created||Date.now()).toLocaleString()}</small></div><div class="item-actions">${type==='trash'?`<button class="secondary" data-action="restore" data-id="${item.id}">Restore</button><button class="danger" data-action="purge" data-id="${item.id}">Delete forever</button>`:`${!isFile?`<button class="secondary" data-action="edit" data-id="${item.id}">Edit</button>`:''}${isFile&&item.data?`<button class="secondary" data-action="open" data-id="${item.id}">Open</button>`:''}<button class="danger" data-action="delete" data-id="${item.id}" data-type="${type}">Move to bin</button>`}</div></div>`}
+function renderList(id,arr,type){const q=$('search').value.toLowerCase().trim();const filtered=arr.filter(x=>!q||`${x.title||''} ${x.name||''} ${x.body||''} ${x.type||''}`.toLowerCase().includes(q));$(id).innerHTML=filtered.length?filtered.map(x=>itemHtml(x,type)).join(''):`<div class="empty">${q?'No matching items found.':'Nothing here yet — add something to get started.'}</div>`}
+function renderAll(){renderList('notesList',db.notes,'notes');renderList('filesList',db.files,'files');renderList('trashList',db.trash,'trash');renderStats()}
+function renderStats(){if(!$('noteCount'))return;$('noteCount').textContent=db.notes.length;$('fileCount').textContent=db.files.length;$('trashCount').textContent=db.trash.length;let bytes=0;try{bytes=new Blob([JSON.stringify(db)]).size}catch(e){}$('usageText').textContent='Estimated local data: '+formatBytes(bytes)+' (browser limits vary)';$('usageBar').style.width=Math.min(100,bytes/5e6*100)+'%'}
+function formatBytes(b){if(!b)return'0 B';const u=['B','KB','MB','GB'];let i=0;while(b>=1024&&i<u.length-1){b/=1024;i++}return b.toFixed(i?1:0)+' '+u[i]}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const {action,id,type}=b.dataset;if(action==='edit'){const n=db.notes.find(x=>x.id===id);if(n){editingId=id;$('noteTitle').value=n.title;$('noteBody').value=n.body;$('noteFormTitle').textContent='Edit note';$('saveNote').textContent='Update note';go('notes');$('noteTitle').value=n.title;$('noteBody').value=n.body;editingId=id}}else if(action==='delete'){const list=type==='files'?db.files:db.notes;const i=list.findIndex(x=>x.id===id);if(i>=0){const [x]=list.splice(i,1);x.deletedAt=Date.now();x.previousType=type;db.trash.unshift(x);save();renderAll()}}else if(action==='restore'){const i=db.trash.findIndex(x=>x.id===id);if(i>=0){const [x]=db.trash.splice(i,1);(x.previousType==='files'?db.files:db.notes).unshift(x);save();renderAll()}}else if(action==='purge'){if(confirm('Permanently delete this item? This cannot be undone.')){db.trash=db.trash.filter(x=>x.id!==id);save();renderAll()}}else if(action==='open'){const f=db.files.find(x=>x.id===id);if(f?.data){const a=document.createElement('a');a.href=f.data;a.target='_blank';a.rel='noopener';a.click()}}});
+$('search').addEventListener('input',renderAll);
+$('chooseFiles').onclick=()=>$('filePicker').click();
+$('filePicker').onchange=async e=>{const files=[...e.target.files];for(const f of files){if(f.size>8*1024*1024){$('fileStatus').textContent=`Skipped ${f.name}: this prototype limits each file to 8 MB. A real cloud version can support larger files.`;continue}try{const data=await readData(f);db.files.unshift({id:uid(),title:f.name,name:f.name,type:f.type||'File',size:f.size,data,created:Date.now(),updated:Date.now(),previousType:'files'});save()}catch(err){$('fileStatus').textContent='Could not save '+f.name+'. Try a smaller file or export a backup.'}}$('fileStatus').textContent='Processed selected files. Check the list below; if storage is full, some files may not have saved.';e.target.value='';renderAll()};
+function readData(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
+$('choosePhoto').onclick=()=>$('photoPicker').click();
+$('photoPicker').onchange=async e=>{const f=e.target.files[0];if(!f)return;if(f.size>8*1024*1024){alert('Photo is over the 8 MB prototype limit.');e.target.value='';return}try{const data=await readData(f);db.files.unshift({id:uid(),title:f.name,name:f.name,type:f.type||'image',size:f.size,data,created:Date.now(),updated:Date.now(),previousType:'files'});save();renderAll();go('files')}catch(err){alert('Could not save this photo.')}e.target.value=''};
+$('saveRecord').onclick=()=>{const title=$('recordTitle').value.trim(),body=$('recordBody').value.trim();if(!title&&!body){alert('Add a title or details first.');return}db.notes.unshift({id:uid(),kind:'record',title:title||'Quick record',body,created:Date.now(),updated:Date.now()});if(save()){ $('recordTitle').value='';$('recordBody').value='';go('notes')}};
+$('emptyTrash').onclick=()=>{if(db.trash.length&&confirm('Permanently delete everything in the Recycle Bin?')){db.trash=[];save();renderAll()}};
+$('backupBtn').onclick=$('backupBtn2').onclick=()=>{const blob=new Blob([JSON.stringify({...db,backupCreated:new Date().toISOString(),app:'ManaVault'},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='manavault-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$('restoreBtn').onclick=()=>$('restoreFile').click();
+$('restoreFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const imported=JSON.parse(await f.text());if(!Array.isArray(imported.notes)||!Array.isArray(imported.files)||!Array.isArray(imported.trash))throw new Error('invalid');if(!confirm('Restore backup? Existing items will be combined with backup items.'))return;const merge=(a,b)=>[...b.filter(x=>!a.some(y=>y.id===x.id)),...a];db.notes=merge(db.notes,imported.notes);db.files=merge(db.files,imported.files);db.trash=merge(db.trash,imported.trash);save();renderAll();alert('Backup restored.')}catch(err){alert('That backup file could not be read. Choose a ManaVault JSON backup.')}e.target.value=''};
+$('saveEmailIdea').onclick=()=>{const val=$('emailIdea').value.trim();if(val&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){alert('Please check the email format.');return}try{localStorage.setItem('manavault_email_plan',val);$('emailStatus').textContent=val?'Preference saved on this device only. No email was sent and no cloud sync is active.':'Preference cleared.'}catch(e){$('emailStatus').textContent='Could not save preference in this browser.'}};
+const canvas=$('board'),ctx=canvas.getContext('2d');ctx.lineCap='round';ctx.lineJoin='round';let drawing=false,last=null;
+function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
+canvas.addEventListener('pointerdown',e=>{drawing=true;last=point(e);canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(!drawing)return;const p=point(e);ctx.strokeStyle=$('penColor').value;ctx.lineWidth=+$('penSize').value;ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p});
+function stop(){drawing=false;last=null}canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);
+$('clearDrawing').onclick=()=>{if(confirm('Clear the drawing board?'))ctx.clearRect(0,0,canvas.width,canvas.height)};
+$('saveDrawing').onclick=()=>{const title=prompt('Name your drawing:','My drawing');if(title===null)return;const data=canvas.toDataURL('image/png');const size=Math.ceil(data.length*.75);db.files.unshift({id:uid(),title:title.trim()||'My drawing.png',name:(title.trim()||'My drawing')+'.png',type:'image/png',size,data,created:Date.now(),updated:Date.now(),previousType:'files'});if(save()){go('files');alert('Drawing saved in this browser. Export a backup to keep a copy.')}};
+load();
+</script>
+</body>
+</html>
